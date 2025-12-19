@@ -1,0 +1,19 @@
+* {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-style: sans-serif;
+
+    /* border-style: solid;
+    border-color: red;
+    border-width: 1px; */
+}
+
+input:valid {
+    border-color: green;
+}
+
+input:invalid {
+    border-color: red;
+}
