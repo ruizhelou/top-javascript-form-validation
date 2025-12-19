@@ -9,13 +9,12 @@ class Country {
 
     constructor(name, postCodePattern) {
         this.name = name
-        this.nameRegExp = new RegExp(this.name, 'i')
         this.postCodePattern = this.createPostCodePattern(postCodePattern)
         this.postCodeError = `Must be in format of ${postCodePattern}`
     }
 
     createPostCodePattern(postCodePattern) {
-        let pattern = ''
+        let pattern = '^'
         for (const character of postCodePattern) {
             if(character === 'N') {
                 pattern += '[0-9]'
@@ -25,6 +24,7 @@ class Country {
                 pattern += character
             }
         }
+        pattern += '$'
         return new RegExp(pattern, 'i')
     }
 }
@@ -53,11 +53,22 @@ function getInvalidCountryMessage() {
     if(country.validity.valueMissing) {
         return 'You need to enter a country.'
     }
-    const foundCountries = countries.filter(existingCountry => existingCountry.nameRegExp.test(country.value))
-    if(foundCountries.length !== 1) {
+    const foundCountries = countries
+        .filter(existingCountry => existingCountry.name.toLowerCase().includes(country.value.toLowerCase()))
+        .map(existingCountry => existingCountry.name)
+
+    if(foundCountries.length > 1) {
+        return `${foundCountries.join('\n')}`
+    } else if(foundCountries.length === 0) {
         return `Country ${country.value} not found.`
+    } else {
+        // foundCountries === 1
+        if(foundCountries[0].toLowerCase() !== country.value.toLowerCase()) {
+            return `${foundCountries[0]}`
+        } else {
+            return null
+        }
     }
-    return null
 }
 
 function getInvalidPostCodeMessage() {
@@ -67,7 +78,7 @@ function getInvalidPostCodeMessage() {
     if(getInvalidCountryMessage() !== null) {
         return 'You must first enter a valid country.'
     } 
-    const foundCountry = countries.filter(existingCountry => existingCountry.nameRegExp.test(country.value))[0]
+    const foundCountry = countries.filter(existingCountry => existingCountry.name.toLowerCase() === country.value.toLowerCase())[0]
     const validPostalCode = foundCountry.postCodePattern.test(postalCode.value)
     if(!validPostalCode) {
         return `${foundCountry.postCodeError}`
